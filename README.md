@@ -121,10 +121,64 @@ E.g. If your username is 'social', then place the live_service.py file in the fo
 
 ```
 
-#### 7. Start the process:
+#### 7. Setup the python script as a system service:
 
-Start the program by running the live_monitor.py python file using the following command:
+This step will ensure that the Python script will always be running, and even if it crashes due to some error, it will start back up again as a system service. The python script needs to be running 24x7 so that it can monitor the youtube channel for any live events and trigger the restreaming process. Follow the steps below to setup the service:
+
+Almost all versions of Linux come with systemd out of the box, but if your’s didn’t come with it then you can simply run the following command:
 
 ```
-python3 /home/<username>/code/live_monitor.py
+sudo apt-get install -y systemd
+```
+
+To check which version of systemd you have simply run the command:
+```
+systemd --version
+```
+
+Now, create a service file for the systemd as following. The file must have .service extension under /lib/systemd/system/ directory
+
+```
+sudo nano /lib/systemd/system/dummy.service
+```
+
+and add the following content in it (Update your python file path if different):
+
+```
+[Unit]
+Description=Python livestreaming service
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/python3 /home/social/code/live_service.py
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Your system service has been added to your service. Let’s reload the systemctl daemon to read new file. You need to reload this deamon each time after making any changes in in .service file.
+
+```
+sudo systemctl daemon-reload
+```
+
+Now enable the service to start on system boot, also start the service using the following commands.
+
+```
+sudo systemctl enable dummy.service
+sudo systemctl start dummy.service
+```
+
+Finally check the status of your service as following command.
+```
+sudo systemctl status dummy.service
+```
+
+In case the script is not running after crashing at some point, Use below commands to stop, start and restart your service manually:
+```
+sudo systemctl stop dummy.service          #To stop running service 
+sudo systemctl start dummy.service         #To start running service 
+sudo systemctl restart dummy.service       #To restart running service 
 ```
