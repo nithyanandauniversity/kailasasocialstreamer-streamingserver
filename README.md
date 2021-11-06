@@ -221,19 +221,21 @@ sudo systemctl restart dummy.service       #To restart running service
 FAQs
 ====
 
-#### What other source files are required for the complete workflow?
+### What other source files are required for the complete workflow?
 There are 3 other modules which complete the workflow:
-1. MongoDB Database: You can create a free account on MongoDB cloud atlas and replace the connection URI in the live_service.py in the appropriate location. Read the comments in the .py file to understand where the connection URI needs to be placed. This connection URI is sensitive and allows the application to connect to the DB to store and retrieve the connected restream.io accounts.
-2. Backend Node JS server: This is stored in a separate Github repo (https://github.com/nithyanandauniversity/kailasasocialstream-nodeserver). This can be hosted on a free heroku account. Guide here: (https://scotch.io/tutorials/how-to-deploy-a-node-js-app-to-heroku). Once hosted, the heroku app will have a unique URL which needs to be updated in the front-end form as the destination of the form response after the user clicks on submit. Add this URL to the source files of the front end webpage and then build the project again. Deploy this new build to a website.
-3. Frontend form webpage: This is also stored in a separate Github repo (https://github.com/nithyanandauniversity/kailasasocialstream/tree/restream-connect). The source files can be used to build the deployable files. The build files can be hosted on any free raw HTML hosting service like Githubb pages. Guide here: https://dannguyen.github.io/github-for-portfolios/lessons/deploy-github-pages/
+1. **MongoDB Database:** You can create a free account on MongoDB cloud atlas and replace the connection URI in the live_service.py in the appropriate location. Read the comments in the .py file to understand where the connection URI needs to be placed. This connection URI is sensitive and allows the application to connect to the DB to store and retrieve the connected restream.io accounts.
+2. **Backend Node JS server:** This is stored in a separate Github repo (https://github.com/nithyanandauniversity/kailasasocialstream-nodeserver). This can be hosted on a free heroku account. Guide here: (https://scotch.io/tutorials/how-to-deploy-a-node-js-app-to-heroku). Once hosted, the heroku app will have a unique URL which needs to be updated in the front-end form as the destination of the form response after the user clicks on submit. Add this URL to the source files of the front end webpage and then build the project again. Deploy this new build to a website.
+3. **Frontend form webpage:** This is also stored in a separate Github repo (https://github.com/nithyanandauniversity/kailasasocialstream/tree/restream-connect). The source files can be used to build the deployable files. The build files can be hosted on any free raw HTML hosting service like Githubb pages. Guide here: https://dannguyen.github.io/github-for-portfolios/lessons/deploy-github-pages/
 
 
-#### What to do if the livestream is not showing up on the connected social media platforms?
+
+### What to do if the livestream is not showing up on the connected social media platforms?
 You can troubleshoot this issue by checking for the following:
 1. Login to the restream.io dashboard of any one account connected and stored in the MongoDB database. Check if the livestream is being received. If yes, then the issue is not with our streaming system. This can usually be fixed by disconnecting and reconnecting the social media account in the restream.io account. E.g. disconnect your youtube channel from your restream.io account and reconnect it by going through the login and authorization process again. Do the same for twitch/periscope-twitter. This disconnection/reconnection should be done by any person who is not seeing the livestream on their social media channels.
 2. If the issue still persists, ensure that the python system service is running by checking its status. If not running, restart it.
 3. If the issue still persists, restart the python system service - in case it has crashed unusually.
 4. If the issue still persists, check the monitor.log file for the console output of the running python service. This will show at what step of the process an error is occurring (if any)
+
 
 
 ### What to do if the livestream published on the social media platforms is choppy/breaking/ending soon after starting/starting on some platforms but not on others?
