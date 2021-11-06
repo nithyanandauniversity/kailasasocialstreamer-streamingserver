@@ -93,11 +93,34 @@ Perform the following actions. Follow the steps in each URL given:
     - Replace it with: ```Protocol 2```
     - Restart the SSH service after making changes and save the file: ```Service ssh restart```
 
-#### 3. Install Python
+#### 3. Install NimbleStreamer:
+
+Full guide here: https://wmspanel.com/nimble/install#os_ubuntu
+
+Add following rep into /etc/apt/sources.list. Open it using:
+```
+sudo nano /etc/apt/sources.list
+```
+After the last line of the document, add the following line:
+```
+deb [trusted=yes] http://nimblestreamer.com/ubuntu bionic/
+```
+Save and exit the file
+
+Run the following commands: 
+```
+wget -q -O - http://nimblestreamer.com/gpg.key | sudo apt-key add - 
+sudo apt-get update --allow-unauthenticated
+sudo apt-get install nimble
+```
+
+Using SFTP, replace the rules.conf and nimble.conf files inside the directory ```/etc/nimble/``` - replace these 2 files with the 2 corresponding files found in this Github repo in the nimblestreamer-config folder.
+
+#### 4. Install Python
 
 Check and make sure the latest version of Python is installed on the system. Follow the steps here: https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-programming-environment-on-an-ubuntu-20-04-server
 
-#### 4. Install required Python packages
+#### 5. Install required Python packages
 
 In the terminal, enter the following command:
 
@@ -105,7 +128,7 @@ In the terminal, enter the following command:
 python3 -m pip install pytz asyncio aiohttp pymongo secure-smtplib youtube_dl dnspython
 ```
 
-#### 5. Install youtube-dl
+#### 6. Install youtube-dl
 
 In the terminal, enter the following command:
 
@@ -113,15 +136,27 @@ In the terminal, enter the following command:
 sudo apt-get install youtube-dl
 ```
 
-#### 6. Copy over the project source files to a directory in the home folder
+#### 7. Copy over the project source files to a directory in the home folder
 
 E.g. If your username is 'social', then place the live_service.py file in the following directory:
 ```
 /home/social/code/live_service.py 
 
 ```
+Before copying the .py file, edit it using a text editor of your choice and replace the placeholder values at the top of the document, namely:
+1. channel_url : URl of the youtube channel to monitor for live events
+2. CLOUD_SERVER_IP : public IP of the Ubuntu server
+3. NIMBLE_STREAMER_APPLICATION: Nimblestreamer application name - this is pre-configured in the rules.conf file from this repo. Update this value in the .py file if changed
+4. NIMBLE_STREAMER_STREAM : Nimble streamer stream key - this is pre-configured in the rules.conf file from this repo. Update this value in the .py file if changed
+5. NIMBLE_STREAMER_LOGIN : Nimble streamer application login ID - this is pre-configured in the rules.conf file from this repo. Update this value in the .py file if changed
+6. NIMBLE_STREAMER_PWD : Nimble streamer application password - this is pre-configured in the rules.conf file from this repo. Update this value in the .py file if changed
+7. RESTREAMIO_CLIENT_ID : Restream.io developer account client ID
+8. RESTREAMIO_CLIENT_SECRET : Restream.io developer account client secret
+9. MONGO_URI : MongoDB connection URI
+10. LIVESTREAM_DESCRIPTION : Fixed description for all restreamed posts
+11. Log file path: Create an empty file called monitor.log in the same directory as the live_service.py. Update the path of this file on line 53 of the .py file.
 
-#### 7. Setup the python script as a system service:
+#### 8. Setup the python script as a system service:
 
 This step will ensure that the Python script will always be running, and even if it crashes due to some error, it will start back up again as a system service. The python script needs to be running 24x7 so that it can monitor the youtube channel for any live events and trigger the restreaming process. Follow the steps below to setup the service:
 
@@ -182,3 +217,29 @@ sudo systemctl stop dummy.service          #To stop running service
 sudo systemctl start dummy.service         #To start running service 
 sudo systemctl restart dummy.service       #To restart running service 
 ```
+
+FAQs
+====
+
+#### What other source files are required for the complete workflow?
+There are 3 other modules which complete the workflow:
+1. MongoDB Database: You can create a free account on MongoDB cloud atlas and replace the connection URI in the live_service.py in the appropriate location. Read the comments in the .py file to understand where the connection URI needs to be placed. This connection URI is sensitive and allows the application to connect to the DB to store and retrieve the connected restream.io accounts.
+2. 3. Backend Node JS server: This is stored in a separate Github repo (https://github.com/nithyanandauniversity/kailasasocialstream-nodeserver). This can be hosted on a free heroku account. Guide here: (https://scotch.io/tutorials/how-to-deploy-a-node-js-app-to-heroku). Once hosted, the heroku app will have a unique URL which needs to be updated in the front-end form as the destination of the form response after the user clicks on submit. Add this URL to the source files of the front end webpage and then build the project again. Deploy this new build to a website.
+3. Frontend form webpage: This is also stored in a separate Github repo (https://github.com/nithyanandauniversity/kailasasocialstream/tree/restream-connect). The source files can be used to build the deployable files. The build files can be hosted on any free raw HTML hosting service like Githubb pages. Guide here: https://dannguyen.github.io/github-for-portfolios/lessons/deploy-github-pages/
+
+
+#### What to do if the livestream is not showing up on the connected social media platforms?
+You can troubleshoot this issue by checking for the following:
+1. Login to the restream.io dashboard of any one account connected and stored in the MongoDB database. Check if the livestream is being received. If yes, then the issue is not with our streaming system. This can usually be fixed by disconnecting and reconnecting the social media account in the restream.io account. E.g. disconnect your youtube channel from your restream.io account and reconnect it by going through the login and authorization process again. Do the same for twitch/periscope-twitter. This disconnection/reconnection should be done by any person who is not seeing the livestream on their social media channels.
+2. If the issue still persists, ensure that the python system service is running by checking its status. If not running, restart it.
+3. If the issue still persists, restart the python system service - in case it has crashed unusually.
+4. If the issue still persists, check the monitor.log file for the console output of the running python service. This will show at what step of the process an error is occurring (if any)
+
+
+### What to do if the livestream published on the social media platforms is choppy/breaking/ending soon after starting/starting on some platforms but not on others?
+
+In this case, it is probably the case that the streaming server is maxing out its hardware - specifically the network port speed. The amount of data being streamed out per second is higher than the hardware supports (if your server has a 150Mbps port speed), or the cloud provider is throttling the port speed and is not providing a 1Gbps connection. Some providers advertise 1Gbps but it is actually shared between all of their users, so in that case they throttle the port speed. To remedy this, the cloud provider will need to be changed to a service which will guarantee 1Gbps port speed / OR the quality of restream can be reduced to 480p to reduce the per second outgoing data - this will not work beyond a certain poing if the no. of destinations increase to a large number.
+
+To verify this, you can SSH into the server and run the ```top``` command to monitor the system resources usage. Check whether the CPU %, or the RAM is maxing out. If so, upgrade your server specifications.
+
+In case the CPU and RAM are not maxed out, check the network usage using the ```nload``` command (Install guide here: https://www.geeksforgeeks.org/how-to-install-nload-in-linux/). Type in ```sudo nload``` and monitor the graphs and values on all 4 of the interfaces (eth0/1/2/3 - toggle viewing these using the up-down arrow keys when seeing the graphs). Find the interface which has the most incoming/outgoing (this corresponds to the FFMPEG docker instance). Check if the max outgoing data per second is being throttled by the port speed of the server. The avg outgoing bitrate of 1 restream has been set to a default of 1500kbps for 720p in the .py file. Multiply the no. of restream destinations by this value and check if it exceeds the avg. outgoing data rate shown in nload. If yes, this means that the server provider is throttling the port speed.
