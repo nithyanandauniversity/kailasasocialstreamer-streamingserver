@@ -127,6 +127,16 @@ In the terminal, enter the following command:
 ```
 python3 -m pip install pytz asyncio aiohttp pymongo secure-smtplib youtube_dl dnspython
 ```
+To install it for the root user, in the terminal, enter the following command. Enter the user pwd when prompted:
+```
+sudo python3 -m pip install pytz asyncio aiohttp pymongo secure-smtplib youtube_dl dnspython
+```
+
+Sometimes, python installs an older version of youtube_dl which cannot fetch URLs of livestreams. To manually upgrade youtube_dl, enter the following command:
+```
+sudo python3 -m pip install youtube_dl --upgrade
+python3 -m pip install youtube_dl --upgrade
+```
 
 #### 6. Install youtube-dl
 
@@ -150,8 +160,8 @@ Before copying the .py file, edit it using a text editor of your choice and repl
 4. NIMBLE_STREAMER_STREAM : Nimble streamer stream key - this is pre-configured in the rules.conf file from this repo. Update this value in the .py file if changed
 5. NIMBLE_STREAMER_LOGIN : Nimble streamer application login ID - this is pre-configured in the rules.conf file from this repo. Update this value in the .py file if changed
 6. NIMBLE_STREAMER_PWD : Nimble streamer application password - this is pre-configured in the rules.conf file from this repo. Update this value in the .py file if changed
-7. RESTREAMIO_CLIENT_ID : Restream.io developer account client ID
-8. RESTREAMIO_CLIENT_SECRET : Restream.io developer account client secret
+7. RESTREAMIO_CLIENT_ID : Restream.io developer account client ID. NOTE: this is not the same as a regular restream.io login ID. This is a special developer account, which has been configured to send access codes back to the NodeJS backend server.
+8. RESTREAMIO_CLIENT_SECRET : Restream.io developer account client secret. NOTE: this is not the same as a regular restream.io login password. This is a special developer account, which has been configured to send access codes back to the NodeJS backend server.
 9. MONGO_URI : MongoDB connection URI
 10. LIVESTREAM_DESCRIPTION : Fixed description for all restreamed posts
 11. Log file path: Create an empty file called monitor.log in the same directory as the live_service.py. Update the path of this file on line 53 of the .py file.
@@ -217,6 +227,15 @@ sudo systemctl stop dummy.service          #To stop running service
 sudo systemctl start dummy.service         #To start running service 
 sudo systemctl restart dummy.service       #To restart running service 
 ```
+
+You can check the output logs of the systemctl in case the service has crashed due to some error or exit code using the following command:
+```
+sudo journalctl -u dummy.service
+```
+
+These logs will show which exact line the service is crashing on upon execution.
+
+
 
 FAQs
 ====
